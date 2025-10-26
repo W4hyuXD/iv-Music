@@ -82,7 +82,7 @@ def show_help():
 {Fore.LIGHTBLACK_EX}────────────────────────────────────────────
 {Fore.LIGHTBLACK_EX}(📁 hasil download otomatis disimpan di /sdcard/Download/iv-Download)
 
-{Fore.LIGHTBLACK_EX}📜 Source: https://github.com/w4hyuXD/Play-Music
+{Fore.LIGHTBLACK_EX}📜 Source: https://github.com/w4hyuXD/iv-Music
 """)
 
 
