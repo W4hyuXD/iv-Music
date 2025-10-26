@@ -6,10 +6,10 @@
 ```bash
 $ pkg update -y && pkg upgrade -y
 $ pkg i -y python git
-$ git clone https://github.com/W4hyuXD/iv-Music
+$ git clone https://github.com/W4hyuXD/iv-Music.git
 $ cd iv-Music
 $ pip install -r requirements.txt
-$ cd iv-install
+$ cd install-iv
 $ ./iv.py -a "url music" -p
 ```
 
