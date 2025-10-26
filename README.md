@@ -1,5 +1,17 @@
-# Music-Downloader
+## IV - Music Player & Downloader 
 > Music Downloader With iv.
+
+> A tool that functions to play and download music from various platforms such as YouTube, Instagram, Tiktok, Facebook, and others.
+## Installation 
+```bash
+$ pkg update -y && pkg upgrade -y
+$ pkg i -y python git
+$ git clone https://github.com/W4hyuXD/iv-Music
+$ cd iv-Music
+$ pip install -r requirements.txt
+$ cd iv-install
+$ ./iv.py -a "url music" -p
+```
 
 ```bash
 📘 IV Downloader — Command Reference
@@ -31,10 +43,7 @@ ADVANCED:
 EXAMPLES:
   iv -sr "cigarettes after sex" --max-results 10 --min-duration 180
   iv -f mp4 -q 1080p "url video"
-  iv -a 128 "url audio" -p
+  iv -a 128 "url music" -p
   iv "link audio/video" (default mp3 128 kbps)
 ────────────────────────────────────────────
-(📁 hasil download otomatis disimpan di /sdcard/Download/iv-Download)
-
-📜 Source: https://github.com/w4hyuXD/iv-Music
 ```
