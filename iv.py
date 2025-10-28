@@ -77,7 +77,7 @@ def show_help():
 {Fore.YELLOW}EXAMPLES:{Style.RESET_ALL}
   iv {Fore.CYAN}-sr {Fore.YELLOW}"cigarettes after sex"{Fore.CYAN} --max-results 10 {Fore.CYAN}--min-duration 180{Style.RESET_ALL}
   iv {Fore.CYAN}-f mp4 -q 1080p {Fore.YELLOW}"url video"{Style.RESET_ALL}
-  iv {Fore.CYAN}-a 128 {Fore.YELLOW}"url audio" {Fore.CYAN}-p
+  iv {Fore.CYAN}-a 128 {Fore.YELLOW}"url audio" {Fore.CYAN}-p{Style.RESET_ALL}
   iv {Fore.YELLOW}"link audio/video" {Fore.CYAN}(default mp3 128 kbps)
 {Fore.LIGHTBLACK_EX}────────────────────────────────────────────
 {Fore.LIGHTBLACK_EX}(📁 hasil download otomatis disimpan di /sdcard/Download/iv-Download)
