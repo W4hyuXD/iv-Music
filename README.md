@@ -45,7 +45,7 @@ python3 iv.py -h
 
 | Command | Description |
 |----------|--------------|
-| `iv <url>` | Download single video/audio (default: mp3 128kbps) |
+| `iv -a <url>` | Download single video/audio (default: mp3 128kbps) |
 | `iv -p <url>` | Play audio directly (no download) |
 | `iv -sr "query"` | Search interactively on YouTube |
 | `iv -f mp4 -q 720p <url>` | Download specific format/resolution |
@@ -75,7 +75,7 @@ python3 iv.py -sr "cigarettes after sex" --max-results 5
 python3 iv.py -f mp4 -q 720p "https://youtu.be/example"
 
 # Play a YouTube playlist
-python3 iv.py "https://www.youtube.com/playlist?list=PLabc123xyz"
+python3 iv.py -a "https://www.youtube.com/playlist?list=PLabc123xyz"
 ```
 
 ---
