@@ -1,48 +1,115 @@
-## IV - Music Player & Downloader 
-> Music Downloader With iv.
+# 🎧 iv-Music
+> A modern, interactive YouTube audio & video downloader built for Termux.
+Fully supports playlists, audio extraction, and interactive controls.
 
-> A tool that functions to play and download music from various platforms such as YouTube, Instagram, Tiktok, Facebook, and others.
-## Installation 
+Powered by [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), [`ffmpeg`](https://ffmpeg.org), and [`mpv`](https://mpv.io).
+
+---
+
+## ✨ Features
+
+- 🎵 Download **audio** (MP3, M4A, OPUS, AAC, WAV)
+- 🎥 Download **video** (MP4, MKV, etc.)
+- 🧠 **Interactive search** mode (`-sr`)
+- 📜 **Playlist mode** (play/download all or choose individual items)
+- ⚙️ Auto-update `yt-dlp` each run
+- 📂 Output saved to `/sdcard/Download/iv-Download/`
+- 🔁 Auto-create folders for playlists
+- 💬 Termux-friendly (designed for Android)
+
+---
+
+## 🚀 Installation
+
 ```bash
-$ pkg update -y && pkg upgrade -y
-$ pkg i -y python git
-$ git clone https://github.com/W4hyuXD/iv-Music.git
-$ cd iv-Music
-$ pip install -r requirements.txt
-$ python3 iv.py -a "url music" -p
+pkg install python ffmpeg mpv -y
+pip install yt-dlp colorama
 ```
 
+Clone this repo:
 ```bash
-📘 IV Downloader — Command Reference
-────────────────────────────────────────────
-USAGE:
-  python3 iv.py [options] <url / search query>
-
-OPTIONS:
-  -h,  --help            tampilkan bantuan ini
-  -f,  --format          format output (audio/video)
-  -a,  --abr             kualitas audio [64,128,192 kbps] (default: 128)
-  -q,  --quality         kualitas video [144p–1080p]
-  -p,  --play            putar audio langsung tanpa download
-  -sr, --search          cari video/audio di YouTube (interaktif)
-  -l,  --list-formats    tampilkan semua format video
-      --min-duration     filter durasi minimal (detik)
-      --max-duration     filter durasi maksimal (detik)
-      --max-results      jumlah hasil pencarian [1–20] (default: 10)
-
-INTERAKTIF MODE:
-  Setelah menggunakan opsi -sr / --search, pilih hasil yang ingin
-  Anda putar atau unduh langsung:
-    • Pilih nomor hasil
-    • Pilih mode: 1 = Putar | 2 = Download
-
-ADVANCED:
-  --force-web             Gunakan klien YouTube web-only (bypass SABR/403)
-
-EXAMPLES:
-  iv -sr "cigarettes after sex" --max-results 10 --min-duration 180
-  iv -f mp4 -q 1080p "url video"
-  iv -a 128 "url music" -p
-  iv "link audio/video" (default mp3 128 kbps)
-────────────────────────────────────────────
+git clone https://github.com/W4hyuXD/iv-Music.git
+cd iv-Music
 ```
+
+Run:
+```bash
+python3 iv.py -h
+```
+---
+
+## 💡 Usage
+
+### Basic commands
+
+| Command | Description |
+|----------|--------------|
+| `iv <url>` | Download single video/audio (default: mp3 128kbps) |
+| `iv -p <url>` | Play audio directly (no download) |
+| `iv -sr "query"` | Search interactively on YouTube |
+| `iv -f mp4 -q 720p <url>` | Download specific format/resolution |
+| `iv <playlist_url>` | Enter playlist interactive mode |
+
+
+## 🎮 Interactive Playlist Mode
+
+When you open a playlist URL, you can choose:
+```
+1. Play all audio
+2. Download all audio (.mp3)
+3. Download all videos (.mp4)
+4. View list & pick one item
+5. Exit
+```
+
+---
+
+## 🧠 Examples
+
+```bash
+# Search and play directly
+python3 iv.py -sr "cigarettes after sex" --max-results 5
+
+# Download a video at 720p
+python3 iv.py -f mp4 -q 720p "https://youtu.be/example"
+
+# Play a YouTube playlist
+python3 iv.py "https://www.youtube.com/playlist?list=PLabc123xyz"
+```
+
+---
+
+## 🗂️ Output
+
+```
+/sdcard/Download/iv-Download/
+├── my-song.mp3
+├── my-video.mp4
+└── <playlist name>/
+    ├── 001 - first track.mp3
+    ├── 002 - second track.mp3
+```
+
+---
+
+## 🧰 Dependencies
+
+- Python 3.12.11
+- ffmpeg
+- mpv
+- yt-dlp (auto-updated)
+
+---
+
+## 🪶 Credits
+
+- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp)
+- [`ffmpeg`](https://ffmpeg.org)
+- [`mpv`](https://mpv.io)
+- [`colorama`](https://pypi.org/project/colorama/)
+
+---
+
+## 📜 License
+
+MIT License © 2025 [@WahyuDin Ambia](https://github.com/w4hyuXD)
