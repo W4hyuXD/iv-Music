@@ -1,6 +1,7 @@
-# 🎧 iv-Music
-> A modern, interactive YouTube audio & video downloader built for Termux.
-Fully supports playlists, audio extraction, and interactive controls.
+# 🎧 iv-Music Player & Downloader
+> A modern, interactive music player and downloader built for Termux.
+Fully supports playlists, audio extraction, and interactive controls. 
+Supported platforms: {Fore.CYAN}YouTube, Instagram, TikTok, Facebook, and others.
 
 Powered by [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), [`ffmpeg`](https://ffmpeg.org), and [`mpv`](https://mpv.io).
 
