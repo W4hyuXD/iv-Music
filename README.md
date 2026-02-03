@@ -12,6 +12,7 @@ Powered by [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), [`ffmpeg`](https://ffmp
 - 🎵 Download **audio** (MP3, M4A, OPUS, AAC, WAV)
 - 🎥 Download **video** (MP4, MKV, etc.)
 - 🧠 **Interactive search** mode (`-sr`)
+- 🔁 Convert Mp4 to Mp3
 - 📜 **Playlist mode** (play/download all or choose individual items)
 - ⚙️ Auto-update `yt-dlp` each run
 - 📂 Output saved to `/sdcard/Download/iv-Download/`
@@ -46,6 +47,7 @@ python3 iv.py -h
 | Command | Description |
 |----------|--------------|
 | `iv -a <url>` | Download single video/audio (default: mp3 128kbps) |
+| `iv -v "<url>"` | Download Video (Selected Best Resolution)|
 | `iv -p <url>` | Play audio directly (no download) |
 | `iv -sr "query"` | Search interactively on YouTube |
 | `iv -f mp4 -q 720p <url>` | Download specific format/resolution |
