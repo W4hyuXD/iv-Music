@@ -1,4 +1,4 @@
-# 🎧 iv-Music Player & Downloader
+#  iv-Music Player & Downloader
 > A modern, interactive music player and downloader built for Termux.
 Fully supports playlists, audio extraction, and interactive controls. 
 Supported platforms: YouTube, Instagram, TikTok, Facebook, and others.
@@ -7,21 +7,20 @@ Powered by [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), [`ffmpeg`](https://ffmp
 
 ---
 
-## ✨ Features
+##  Features
 
-- 🎵 Download **audio** (MP3, M4A, OPUS, AAC, WAV)
-- 🎥 Download **video** (MP4, MKV, etc.)
-- 🧠 **Interactive search** mode (`-sr`)
-- 🔁 Convert Mp4 to Mp3
-- 📜 **Playlist mode** (play/download all or choose individual items)
-- ⚙️ Auto-update `yt-dlp` each run
-- 📂 Output saved to `/sdcard/Download/iv-Download/`
-- 🔁 Auto-create folders for playlists
-- 💬 Termux-friendly (designed for Android)
+- Download **audio** (MP3, M4A, OPUS, AAC, WAV)
+- Download **video** (MP4, MKV, etc.)
+- **Interactive search** mode
+- Convert Mp4 to Mp3
+- **Playlist mode** (play/download all or choose individual items)
+- Auto-update `yt-dlp` each run
+- Output saved to `/sdcard/Download/iv-Download/`
+- Auto-create folders for playlists
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ```bash
 pkg install python ffmpeg mpv -y
@@ -40,7 +39,7 @@ python3 iv.py -h
 ```
 ---
 
-## 💡 Usage
+##  Usage
 
 ### Basic commands
 
@@ -54,7 +53,7 @@ python3 iv.py -h
 | `iv <playlist_url>` | Enter playlist interactive mode |
 
 
-## 🎮 Interactive Playlist Mode
+## Interactive Playlist Mode
 
 When you open a playlist URL, you can choose:
 ```
@@ -67,7 +66,7 @@ When you open a playlist URL, you can choose:
 
 ---
 
-## 🧠 Examples
+## Examples
 
 ```bash
 # Search and play directly
@@ -82,7 +81,7 @@ python3 iv.py -a "https://www.youtube.com/playlist?list=PLabc123xyz"
 
 ---
 
-## 🗂️ Output
+## Output
 
 ```
 /sdcard/Download/iv-Download/
@@ -95,7 +94,7 @@ python3 iv.py -a "https://www.youtube.com/playlist?list=PLabc123xyz"
 
 ---
 
-## 🧰 Dependencies
+## Dependencies
 
 - Python 3.12.11
 - ffmpeg
