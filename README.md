@@ -103,7 +103,7 @@ python3 iv.py -a "https://www.youtube.com/playlist?list=PLabc123xyz"
 
 ---
 
-## 🪶 Credits
+## Credits
 
 - [`yt-dlp`](https://github.com/yt-dlp/yt-dlp)
 - [`ffmpeg`](https://ffmpeg.org)
@@ -112,6 +112,6 @@ python3 iv.py -a "https://www.youtube.com/playlist?list=PLabc123xyz"
 
 ---
 
-## 📜 License
+## License
 
 MIT License © 2025 [@WahyuDin Ambia](https://github.com/w4hyuXD)
