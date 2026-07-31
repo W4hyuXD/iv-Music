@@ -165,9 +165,9 @@ def prompt_convert_to_mp3(video_path, abr="128"):
             "-ab", f"{abr}k",
             mp3_path
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"{Fore.GREEN}✅ Berhasil: {mp3_path}")
+        print(f"{Fore.GREEN}[✓] Berhasil: {mp3_path}")
     except Exception as e:
-        print(f"{Fore.RED}❌ Gagal convert: {e}")
+        print(f"{Fore.RED}[x] Gagal convert: {e}")
 
    # <!-- Download audio/video tunggal --->
 def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playlist_title=None):
@@ -210,7 +210,7 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
             else:
                 fmt = pick_format(info, quality)
                 if not fmt:
-                    print(f"{Fore.LIGHTRED_EX}❌ Tidak ada format video valid")
+                    print(f"{Fore.LIGHTRED_EX}[x] Tidak ada format video valid")
                     return
                 opts = {
                     **common_opts,
@@ -219,7 +219,7 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
                 }
             with yt_dlp.YoutubeDL(opts) as y:
               info = y.extract_info(url, download=True)
-        print(f"\n{Fore.GREEN}✅ File disimpan ke: {output_dir}")
+        print(f"\n{Fore.GREEN}[✓] File disimpan ke: {output_dir}")
         if video_mode and ext not in audio_formats:
           try:
             filename = y.prepare_filename(info)
@@ -227,7 +227,7 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
           except Exception:
             pass
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}❌ Error: {str(e)}")
+        print(f"{Fore.LIGHTRED_EX}[x] Error: {str(e)}")
 
    # <!-- Fitur Seraching Music --->
 def search_youtube(query, max_results=10, min_duration=0, max_duration=None, force_web=False):
@@ -252,7 +252,7 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
                 info = ydl.extract_info(f"ytsearchddg{max_results}:{query}", download=False)
         entries = info.get("entries", [])
         if not entries:
-            print(f"{Fore.RED}❌ Tidak ditemukan hasil untuk '{query}'")
+            print(f"{Fore.RED}[x] Tidak ditemukan hasil untuk '{query}'")
             return
         filtered = []
         for e in entries:
@@ -263,7 +263,7 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
                 continue
             filtered.append(e)
         if not filtered:
-            print(f"{Fore.RED}❌ Tidak ada hasil yang sesuai durasi filter")
+            print(f"{Fore.RED}[x] Tidak ada hasil yang sesuai durasi filter")
             return
         print(f"{Fore.LIGHTCYAN_EX}🔎 Menemukan {len(filtered)} hasil:\n")
         for i, e in enumerate(filtered[:max_results], start=1):
@@ -290,12 +290,12 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
             print(f"{Fore.CYAN}▶️ Memutar: {picked.get('title')}")
             play_audio(url, abr="128", is_playlist=False)
         elif action == "2":
-            print(f"{Fore.GREEN}⬇️ Mengunduh: {picked.get('title')}")
+            print(f"{Fore.GREEN}[↓] Mengunduh: {picked.get('title')}")
             download(url, "mp3", "720", "128", is_playlist=False)
         else:
-            print(f"{Fore.RED}❌ Pilihan tidak valid.")
+            print(f"{Fore.RED}[x] Pilihan tidak valid.")
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}❌ Error: {str(e)}")
+        print(f"{Fore.LIGHTRED_EX}[x] Error: {str(e)}")
 
 # <!-- Playlist Handler: Deteksi url playlist dan menu interaktif --->
 def handle_playlist_interactive(url):
@@ -307,7 +307,7 @@ def handle_playlist_interactive(url):
         pl_title = info.get("title", "playlist")
         entries = info.get("entries") or []
         if not entries:
-            print(f"{Fore.RED}❌ Playlist kosong atau tidak dapat dibaca.")
+            print(f"{Fore.RED}[x] Playlist kosong atau tidak dapat dibaca.")
             return
         print(f"{Fore.LIGHTCYAN_EX}🎶 Playlist terdeteksi: {pl_title}")
         print(f"Jumlah item: {len(entries)}\n")
@@ -329,14 +329,14 @@ def handle_playlist_interactive(url):
             b = input("Kualitas audio untuk download [64/128/192] (default 128): ").strip()
             if b not in ["64","128","192"]:
                 b = "128"
-            print(f"{Fore.GREEN}⬇️ Mengunduh seluruh playlist sebagai .mp3 (bitrate {b}) ...")
+            print(f"{Fore.GREEN}[↓] Mengunduh seluruh playlist sebagai .mp3 (bitrate {b}) ...")
             download(url, ext="mp3", quality="720", abr=b, is_playlist=True, playlist_title=pl_title)
             return
         if sel == "3":
             q = input("Kualitas video untuk download [144/240/360/480/720/1080] (default 720): ").strip()
             if q not in ["144","240","360","480","720","1080"]:
                 q = "720"
-            print(f"{Fore.GREEN}⬇️ Mengunduh seluruh playlist sebagai .mp4 (res {q}p) ...")
+            print(f"{Fore.GREEN}[↓] Mengunduh seluruh playlist sebagai .mp4 (res {q}p) ...")
             download(url, ext="mp4", quality=q, abr="128", is_playlist=True, playlist_title=pl_title)
             return
         if sel == "4":
