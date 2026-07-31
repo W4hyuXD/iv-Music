@@ -29,7 +29,7 @@ def ensure_latest_ytdlp():
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
     except Exception:
-        print(f"{Fore.YELLOW}⚠️ yt-dlp belum terinstall, menginstal sekarang...")
+        print(f"{Fore.YELLOW}[!] yt-dlp belum terinstall, menginstal sekarang...")
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
@@ -109,10 +109,10 @@ Platform yang didukung: {Fore.CYAN}YouTube, Instagram, TikTok, Facebook, dan lai
    # <!-- cek dependenci --->
 def check_ffmpeg_mpv():
     if shutil.which("ffmpeg") is None:
-        print(f"{Fore.LIGHTRED_EX}❌ ffmpeg tidak ditemukan! Install: pkg install ffmpeg -y")
+        print(f"{Fore.LIGHTRED_EX}[x]ffmpeg tidak ditemukan! Install: pkg install ffmpeg -y")
         sys.exit(1)
     if shutil.which("mpv") is None:
-        print(f"{Fore.LIGHTRED_EX}❌ mpv tidak ditemukan! Install: pkg install mpv -y")
+        print(f"{Fore.LIGHTRED_EX}[x]mpv tidak ditemukan! Install: pkg install mpv -y")
         sys.exit(1)
 
    # <!-- Download Progress --->
@@ -122,9 +122,9 @@ def progress_hook(d):
         percent = strip_ansi(d.get('_percent_str', '0%')).strip()
         speed = strip_ansi(d.get('_speed_str', '0 KiB/s'))
         eta = strip_ansi(d.get('_eta_str', '??:??'))
-        print(f"{Fore.CYAN}⬇️ {percent} | {speed} | ETA {eta}   ", end="\r")
+        print(f"{Fore.CYAN}[↓] {percent} | {speed} | ETA {eta}   ", end="\r")
     elif status == 'finished':
-        print(f"\n{Fore.GREEN}✅ Selesai: {d.get('filename')}")
+        print(f"\n{Fore.GREEN}[✓]Selesai: {d.get('filename')}")
 
    # <!-- puter musik --->
 def play_audio(url, abr="128", is_playlist=False):
@@ -148,7 +148,7 @@ def pick_format(info, quality):
         return chosen['format_id']
     fallback = max(available)
     chosen = max([f for f in formats if int(f['height']) == fallback], key=lambda x: x.get('tbr') or 0)
-    print(f"{Fore.LIGHTYELLOW_EX}⚠️ {target}p tidak tersedia, fallback {fallback}p")
+    print(f"{Fore.LIGHTYELLOW_EX}[!] {target}p tidak tersedia, fallback {fallback}p")
     return chosen['format_id']
 
 def prompt_convert_to_mp3(video_path, abr="128"):
@@ -369,23 +369,23 @@ def handle_playlist_interactive(url):
                 b = input("Kualitas audio [64/128/192] (default 128): ").strip()
                 if b not in ["64","128","192"]:
                     b = "128"
-                print(f"{Fore.GREEN}⬇️ Mengunduh: {chosen.get('title')} (mp3, {b} kbps)")
+                print(f"{Fore.GREEN}[↓] Mengunduh: {chosen.get('title')} (mp3, {b} kbps)")
                 download(vid, ext="mp3", quality="720", abr=b, is_playlist=False)
             elif action == "3":
                 q = input("Kualitas video [144/240/360/480/720/1080] (default 720): ").strip()
                 if q not in ["144","240","360","480","720","1080"]:
                     q = "720"
-                print(f"{Fore.GREEN}⬇️ Mengunduh: {chosen.get('title')} (mp4, {q}p)")
+                print(f"{Fore.GREEN}[↓] Mengunduh: {chosen.get('title')} (mp4, {q}p)")
                 download(vid, ext="mp4", quality=q, abr="128", is_playlist=False)
             else:
-                print(f"{Fore.RED}❌ Pilihan tidak valid.")
+                print(f"{Fore.RED}[x]Pilihan tidak valid.")
             return
         if sel == "5":
             print(f"{Fore.YELLOW}Keluar.")
             return
-        print(f"{Fore.RED}❌ Pilihan tidak valid.")
+        print(f"{Fore.RED}[x]Pilihan tidak valid.")
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}❌ Error: {str(e)}")
+        print(f"{Fore.LIGHTRED_EX}[x]Error: {str(e)}")
 
    # <!-- Url Playlist Detector --->
 def is_playlist_url(url: str) -> bool:
@@ -434,7 +434,7 @@ if __name__ == "__main__":
             idx = args.index("-sr") if "-sr" in args else args.index("--search")
             query = args[idx + 1]
         except Exception:
-            print(f"{Fore.RED}❌ Gunakan: -sr \"query\"")
+            print(f"{Fore.RED}[x]Gunakan: -sr \"query\"")
             sys.exit(1)
         max_results = 10
         min_duration = 0
