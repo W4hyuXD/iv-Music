@@ -10,10 +10,7 @@ from rich.text import Text
 console = Console()
 
 def fetch_synced_lyrics(title: str, artist: str = "") -> str | None:
-    """
-    Mengambil lirik ter-sinkronisasi (.lrc) dari LRCLIB API gratis.
-    """
-    # Bersihkan judul dari karakter pencarian tambahan jika ada
+    """Mengambil lirik ter-sinkronisasi (.lrc) dari LRCLIB API gratis."""
     clean_title = re.sub(r'\(.*?\)|\[.*?\]', '', title).strip()
     query = f"{clean_title} {artist}".strip()
     url = f"https://lrclib.net/api/search?q={requests.utils.quote(query)}"
@@ -30,9 +27,7 @@ def fetch_synced_lyrics(title: str, artist: str = "") -> str | None:
     return None
 
 def parse_lrc(lrc_text: str) -> list[tuple[float, str]]:
-    """
-    Mengubah format .lrc ([mm:ss.xx] teks) menjadi list [(timestamp_detik, teks_lirik)]
-    """
+    """Mengubah format .lrc ([mm:ss.xx] teks) menjadi list [(timestamp_detik, teks_lirik)]."""
     lyrics_data = []
     pattern = re.compile(r"\[(\d+):(\d+\.\d+)\](.*)")
     
@@ -48,12 +43,9 @@ def parse_lrc(lrc_text: str) -> list[tuple[float, str]]:
     return sorted(lyrics_data, key=lambda x: x[0])
 
 def render_lyrics_ui(lyrics_data: list[tuple[float, str]], current_index: int, song_title: str) -> Panel:
-    """
-    Membuat tampilan UI Terminal dengan Highlight pada lirik aktif.
-    """
+    """Membuat tampilan UI Terminal dengan Highlight pada lirik aktif."""
     ui_text = Text()
     
-    # Tampilkan 2 baris lirik sebelum & 2 baris setelah lirik aktif
     start = max(0, current_index - 2)
     end = min(len(lyrics_data), current_index + 3)
     
@@ -63,52 +55,56 @@ def render_lyrics_ui(lyrics_data: list[tuple[float, str]], current_index: int, s
             line_text = "🎵 ... 🎵"
             
         if i == current_index:
-            # Lirik yang sedang dinyanyikan (Highlight Khas)
             ui_text.append(f"▶  {line_text}\n", style="bold yellow reverse")
         elif i < current_index:
-            # Lirik yang sudah lewat
             ui_text.append(f"   {line_text}\n", style="dim white")
         else:
-            # Lirik berikutnya
             ui_text.append(f"   {line_text}\n", style="cyan")
             
     return Panel(
         Align.center(ui_text, vertical="middle"),
-        title=f"[bold green]🎶 Now Playing: {song_title}[/bold green]",
+        title=f"[bold green]🎶 Playing: {song_title}[/bold green]",
         border_style="magenta",
         padding=(1, 2)
     )
 
-def start_lyrics_animation(song_title: str, artist: str = "", get_audio_pos_func=None):
+def start_lyrics_animation(song_title: str, artist: str = "", delay_offset: float = 3.5):
     """
-    Jalankan animasi lirik di terminal.
-    - get_audio_pos_func: Fungsi opsional yang mengembalikan detik pemutaran audio saat ini dari player.
+    Menjalankan animasi lirik di terminal.
+    - delay_offset: Waktu tunggu (detik) agar suara mpv selesai buffer & mulai berbunyi.
     """
+    console.print(f"[cyan]🔎 Mengunduh lirik untuk {song_title}...[/cyan]")
     lrc_raw = fetch_synced_lyrics(song_title, artist)
+    
     if not lrc_raw:
-        console.print(f"[bold red][!] Lirik ter-sinkronisasi tidak ditemukan untuk:[/bold red] {song_title}")
+        console.print(f"\n[bold red][!] Lirik ter-sinkronisasi tidak ditemukan untuk:[/bold red] {song_title}\n")
         return
 
     lyrics_data = parse_lrc(lrc_raw)
     if not lyrics_data:
-        console.print("[bold red][!] Format lirik tidak dapat diproses.[/bold red]")
+        console.print("\n[bold red][!] Format lirik tidak dapat diproses.[/bold red]\n")
         return
 
+    # Hitung waktu mulai setelah lirik siap didownload
     start_time = time.time()
     current_idx = 0
     
     with Live(render_lyrics_ui(lyrics_data, current_idx, song_title), refresh_per_second=10, console=console) as live:
         while current_idx < len(lyrics_data):
-            # Ambil waktu pemutaran (bisa dari audio player atau timer bawaan)
-            if get_audio_pos_func:
-                current_time = get_audio_pos_func()
-            else:
-                current_time = time.time() - start_time
-                
-            # Cek apakah harus pindah ke baris lirik berikutnya
-            while current_idx + 1 < len(lyrics_data) and current_time >= lyrics_data[current_idx + 1][0]:
-                current_idx += 1
+            # Kurangi delay_offset agar waktu lirik disesuaikan dengan waktu MPV buffer
+            elapsed_time = (time.time() - start_time) - delay_offset
+            
+            # Cari baris lirik yang paling sesuai dengan elapsed_time saat ini
+            target_idx = 0
+            for i, (timestamp, _) in enumerate(lyrics_data):
+                if elapsed_time >= timestamp:
+                    target_idx = i
+                else:
+                    break
+            
+            if target_idx != current_idx:
+                current_idx = target_idx
                 live.update(render_lyrics_ui(lyrics_data, current_idx, song_title))
                 
             time.sleep(0.05)
-          
+
