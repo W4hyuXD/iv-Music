@@ -8,6 +8,7 @@ import subprocess
 import os
 import re
 from colorama import Fore, Style, init
+from lyrics_module import start_lyrics_animation
 
 init(autoreset=True)
 VERSION = "2.1.0"
