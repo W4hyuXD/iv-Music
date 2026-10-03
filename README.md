@@ -17,6 +17,7 @@ Powered by [`yt-dlp`](https://github.com/yt-dlp/yt-dlp), [`ffmpeg`](https://ffmp
 - Auto-update `yt-dlp` each run
 - Output saved to `/sdcard/Download/iv-Download/`
 - Auto-create folders for playlists
+- animation text lyrics 
 
 ---
 
