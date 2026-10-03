@@ -2,6 +2,7 @@
 # Created Saturday, 25 October 2025
 # Copyright © WahyuDin Ambia XD
 
+# <!-- import library --->
 import sys
 import shutil
 import subprocess
@@ -20,7 +21,7 @@ def strip_ansi(s: str) -> str:
         return s
     return _ansi_re.sub('', s)
 
-   # <!-- otomatis update library --->
+# <!-- otomatis update library --->
 def ensure_latest_ytdlp():
     try:
         import yt_dlp
@@ -28,20 +29,17 @@ def ensure_latest_ytdlp():
         print(f"{Fore.LIGHTBLACK_EX}🔎 yt-dlp version: {yv.__version__}")
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except Exception:
         print(f"{Fore.YELLOW}[!] yt-dlp belum terinstall, menginstal sekarang...")
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        )
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     import yt_dlp
     return yt_dlp
-
 yt_dlp = ensure_latest_ytdlp()
 
-   # <!-- banner --->
+# <!-- banner --->
 def banner():
     logo = ''' _         .-..-.             _                               
 :_;        : `' :            :_;                              
@@ -56,7 +54,7 @@ def banner():
     print(logo)
     print(f"{Fore.LIGHTBLACK_EX}iv-downloader v{VERSION} | powered by yt-dlp\n")
 
-   # <!-- bantuan --->
+# <!-- bantuan --->
 def show_help():
     banner()
     print(f"""{Fore.CYAN}📘 IV Downloader — Command Reference{Style.RESET_ALL}
@@ -107,7 +105,7 @@ Platform yang didukung: {Fore.CYAN}YouTube, Instagram, TikTok, Facebook, dan lai
 {Style.RESET_ALL}📜 Source: {Fore.CYAN}https://github.com/W4hyuXD/iv-Music{Style.RESET_ALL}
 """)
 
-   # <!-- cek dependenci --->
+# <!-- cek dependenci --->
 def check_ffmpeg_mpv():
     if shutil.which("ffmpeg") is None:
         print(f"{Fore.LIGHTRED_EX}[x]ffmpeg tidak ditemukan! Install: pkg install ffmpeg -y")
@@ -116,7 +114,7 @@ def check_ffmpeg_mpv():
         print(f"{Fore.LIGHTRED_EX}[x]mpv tidak ditemukan! Install: pkg install mpv -y")
         sys.exit(1)
 
-   # <!-- Download Progress --->
+# <!-- Download Progress --->
 def progress_hook(d):
     status = d.get('status')
     if status == 'downloading':
@@ -127,31 +125,24 @@ def progress_hook(d):
     elif status == 'finished':
         print(f"\n{Fore.GREEN}[✓]Selesai: {d.get('filename')}")
 
-   # <!-- Subprocess MPV Quiet --->
+# <!-- Subprocess MPV Quiet --->
 def _run_mpv_quiet(url, abr="128"):
     cmd = ["mpv", "--no-video", "--really-quiet", f"--ytdl-format=bestaudio[abr>={abr}]", url]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-   # <!-- puter musik dengan Lirik --->
+# <!-- puter musik dengan Lirik --->
 def play_audio(url, title="", abr="128", is_playlist=False):
     print(f"{Fore.LIGHTCYAN_EX}▶️ Memutar audio langsung ({abr} kbps)...")
-    
-    # 1. Jalankan mpv di background thread
     t = threading.Thread(target=_run_mpv_quiet, args=(url, abr), daemon=True)
     t.start()
-    
-    # 2. Ekstrak judul dan artis
     artist = ""
     song_title = title
     if "-" in title:
         parts = title.split("-", 1)
         artist = parts[0].strip()
         song_title = parts[1].strip()
-        
-    # 3. Jalankan TUI Animasi Lirik (Gunakan delay_offset 2.5 detik untuk kompensasi buffer)
     if song_title:
-        start_lyrics_animation(song_title=song_title, artist=artist, delay_offset=5.0)
-        
+        start_lyrics_animation(song_title=song_title, artist=artist, delay_offset=4.8)
     t.join()
 
    # <!-- pilih format url --->
@@ -188,7 +179,7 @@ def prompt_convert_to_mp3(video_path, abr="128"):
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         print(f"{Fore.GREEN}[✓] Berhasil: {mp3_path}")
     except Exception as e:
-        print(f"{Fore.RED}[x] Gagal convert: {e}")
+        print(f"{Fore.RED}[x] Convert Gagal : {e}")
 
    # <!-- Download audio/video tunggal --->
 def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playlist_title=None, video_mode=False):
@@ -293,7 +284,8 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
             url = e.get("webpage_url") or e.get("url") or ""
             if url and not url.startswith("http"):
                 url = f"https://www.youtube.com/watch?v={url}"
-            print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) — {Fore.LIGHTBLACK_EX}{url}")
+            #print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) — {Fore.LIGHTBLACK_EX}{url}")
+            print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) {Fore.LIGHTBLACK_EX}")
         print(f"\n{Fore.YELLOW}Pilih URL yang ingin anda Putar/Download:")
         choice = input(f"Masukkan nomor [1-{len(filtered)}]: ").strip()
         if not choice.isdigit():
