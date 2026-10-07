@@ -120,16 +120,25 @@ def check_ffmpeg_mpv():
         cetak(f"[{M2}x[/]]mpv tidak ditemukan! Install: {H2}pkg install mpv -y")
         sys.exit(1)
 
-   # <!-- Download Progress --->
+    # <!-- Download Progress --->
 def progress_hook(d):
     status = d.get('status')
     if status == 'downloading':
         percent = strip_ansi(d.get('_percent_str', '0%')).strip()
-        speed = strip_ansi(d.get('_speed_str', '0 KiB/s'))
-        eta = strip_ansi(d.get('_eta_str', '??:??'))
-        cetak(f"[{H2}↓[/]] {H2}{percent}[/] | {H2}{speed}[/] | ETA {H2}{eta}[/]   ", end="\r")
+        total = strip_ansi(d.get('_total_bytes_str') or d.get('_total_bytes_estimate_str') or '0MiB').strip()
+        speed = strip_ansi(d.get('_speed_str', '0KiB/s')).strip()
+        eta = strip_ansi(d.get('_eta_str', '??:??')).strip()
+        BLUE = "\033[38;2;97;175;239m"
+        GREEN = "\033[38;2;152;195;121m"
+        YELLOW = "\033[38;2;229;192;123m"
+        CYAN = "\033[38;2;86;182;194m"
+        RESET = "\033[0m"
+        line = f"\r\033[K[download] {BLUE}{percent:>6}{RESET} of {total:>8} at {GREEN}{speed:>10}{RESET} ETA {YELLOW}{eta}{RESET} "
+        sys.stdout.write(line)
+        sys.stdout.flush()
     elif status == 'finished':
-        cetak(f"\n[{H2}✓[/]]Selesai: {H2}{d.get('filename')}")
+        print()  # Pindah ke baris baru saat selesai
+        cetak(f"[{H2}✓[/]]Selesai: {H2}{d.get('filename')}")
 
    # <!-- Subprocess MPV Quiet --->
 def _run_mpv_quiet(url, abr="128"):
@@ -223,6 +232,7 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
         outtmpl = os.path.join(output_dir, "%(title)s.%(ext)s")
     common_opts = {
         "outtmpl": outtmpl,
+        "noprogress": True,  # Biarkan progress_hook kita yang menangani tampilan progress 1 baris
         "noplaylist": False if is_playlist else True,
         "progress_hooks": [progress_hook],
         "continuedl": True,
@@ -322,7 +332,7 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
         url = picked.get("webpage_url") or picked.get("url")
         if url and not url.startswith("http"):
             url = f"https://www.youtube.com/watch?v={url}"
-        action = input(f"\n[?] Mau Putar Langsung / Download [1/2]: ").strip()
+        action = input(f"[?] Mau Putar Langsung / Download [1/2]: ").strip()
         if action == "1":
             cetak(f"[▶️] Memutar: [#00e83e]{picked.get('title')}")
             play_audio(url, title=picked.get("title", ""), abr="128", is_playlist=False)
@@ -461,13 +471,13 @@ if __name__ == "__main__":
             abr = args[idx + 1]
         except Exception:
             pass
-    # <!-- search --->
+    # <!-- fitur search --->
     if "-sr" in args or "--search" in args:
         try:
             idx = args.index("-sr") if "-sr" in args else args.index("--search")
             query = args[idx + 1]
         except Exception:
-            cetak(f"{Fore.RED}[x]Gunakan: -sr \"query\"")
+            cetak(f"[{M2}x[/]]Gunakan: -sr \"query\"")
             sys.exit(1)
         max_results = 10
         min_duration = 0
@@ -489,7 +499,7 @@ if __name__ == "__main__":
                 pass
         search_youtube(query, max_results=max_results, min_duration=min_duration, max_duration=max_duration, force_web=force_web)
         sys.exit(0)
-    # <!-- Pemutaran URL Tunggal / Playlist --->
+    # <!-- Pemutaran URL Tunggal / Playlist langsung --->
     target_url = args[-1]
     if is_playlist_url(target_url):
         handle_playlist_interactive(target_url)
@@ -497,4 +507,3 @@ if __name__ == "__main__":
         play_audio(target_url, abr=abr)
     else:
         download(target_url, ext=ext, quality=quality, abr=abr, video_mode=video_mode)
-
