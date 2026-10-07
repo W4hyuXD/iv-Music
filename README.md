@@ -32,6 +32,7 @@ Clone this repo:
 ```bash
 git clone https://github.com/W4hyuXD/iv-Music.git
 cd iv-Music
+pip install rich
 ```
 
 Run:
