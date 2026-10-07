@@ -2,18 +2,22 @@
 # Created Saturday, 25 October 2025
 # Copyright © WahyuDin Ambia XD
 
-# <!-- import library --->
-import sys
+import sys, rich
 import shutil
 import subprocess
 import os
 import re
 import threading
+from rich import print as cetak
 from colorama import Fore, Style, init
 from lyrics_module import start_lyrics_animation
 
 init(autoreset=True)
 VERSION = "2.1.0"
+
+# warna
+A2 = "[#6a6a6a]" # ABU-ABU
+M2, H2, K2, P2, B2, U2, O2 = ["[#FF0000]", "[#00FF00]", "[#FFFF00]", "[#FFFFFF]", "[#00C8FF]", "[#AF00FF]", "[#00FFFF]"]
 
 _ansi_re = re.compile(r'\x1b\[[0-9;]*m')
 def strip_ansi(s: str) -> str:
@@ -21,7 +25,7 @@ def strip_ansi(s: str) -> str:
         return s
     return _ansi_re.sub('', s)
 
-# <!-- otomatis update library --->
+   # <!-- otomatis update library --->
 def ensure_latest_ytdlp():
     try:
         import yt_dlp
@@ -29,17 +33,19 @@ def ensure_latest_ytdlp():
         print(f"{Fore.LIGHTBLACK_EX}🔎 yt-dlp version: {yv.__version__}")
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
     except Exception:
-        print(f"{Fore.YELLOW}[!] yt-dlp belum terinstall, menginstal sekarang...")
+        cetak(f"[{M2}![/]] yt-dlp belum terinstall, menginstal sekarang...")
         subprocess.run(
             [sys.executable, "-m", "pip", "install", "-U", "yt-dlp"],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
     import yt_dlp
     return yt_dlp
 yt_dlp = ensure_latest_ytdlp()
 
-# <!-- banner --->
+   # <!-- banner --->
 def banner():
     logo = ''' _         .-..-.             _                               
 :_;        : `' :            :_;                              
@@ -51,10 +57,10 @@ def banner():
 : :: : .--. .-..-..-.,-.,-.: :   .--.  .--.   .-' : .--. .--. 
 : :; :' .; :: `; `; :: ,. :: :_ ' .; :' .; ; ' .; :' '_.': ..'
 :___.'`.__.'`.__.__.':_;:_;`.__;`.__.'`.__,_;`.__.'`.__.':_;     '''
-    print(logo)
-    print(f"{Fore.LIGHTBLACK_EX}iv-downloader v{VERSION} | powered by yt-dlp\n")
+    cetak(logo)
+    cetak(f"iv-downloader {H2}v{VERSION}[/] | powered by yt-dlp\n")
 
-# <!-- bantuan --->
+   # <!-- bantuan --->
 def show_help():
     banner()
     print(f"""{Fore.CYAN}📘 IV Downloader — Command Reference{Style.RESET_ALL}
@@ -105,40 +111,61 @@ Platform yang didukung: {Fore.CYAN}YouTube, Instagram, TikTok, Facebook, dan lai
 {Style.RESET_ALL}📜 Source: {Fore.CYAN}https://github.com/W4hyuXD/iv-Music{Style.RESET_ALL}
 """)
 
-# <!-- cek dependenci --->
+   # <!-- cek dependenci --->
 def check_ffmpeg_mpv():
     if shutil.which("ffmpeg") is None:
-        print(f"{Fore.LIGHTRED_EX}[x]ffmpeg tidak ditemukan! Install: pkg install ffmpeg -y")
+        cetak(f"[{M2}x[/]]ffmpeg tidak ditemukan! Install: {H2}pkg install ffmpeg -y")
         sys.exit(1)
     if shutil.which("mpv") is None:
-        print(f"{Fore.LIGHTRED_EX}[x]mpv tidak ditemukan! Install: pkg install mpv -y")
+        cetak(f"[{M2}x[/]]mpv tidak ditemukan! Install: {H2}pkg install mpv -y")
         sys.exit(1)
 
-# <!-- Download Progress --->
+   # <!-- Download Progress --->
 def progress_hook(d):
     status = d.get('status')
     if status == 'downloading':
         percent = strip_ansi(d.get('_percent_str', '0%')).strip()
         speed = strip_ansi(d.get('_speed_str', '0 KiB/s'))
         eta = strip_ansi(d.get('_eta_str', '??:??'))
-        print(f"{Fore.CYAN}[↓] {percent} | {speed} | ETA {eta}   ", end="\r")
+        cetak(f"[{H2}↓[/]] {H2}{percent}[/] | {H2}{speed}[/] | ETA {H2}{eta}[/]   ", end="\r")
     elif status == 'finished':
-        print(f"\n{Fore.GREEN}[✓]Selesai: {d.get('filename')}")
+        cetak(f"\n[{H2}✓[/]]Selesai: {H2}{d.get('filename')}")
 
-# <!-- Subprocess MPV Quiet --->
+   # <!-- Subprocess MPV Quiet --->
 def _run_mpv_quiet(url, abr="128"):
-    cmd = ["mpv", "--no-video", "--really-quiet", f"--ytdl-format=bestaudio[abr>={abr}]", url]
+    cmd = [
+        "mpv",
+        "--no-video",
+        "--really-quiet",
+        "--demuxer-max-bytes=10M",
+        "--demuxer-max-back-bytes=5M",
+        f"--ytdl-format=bestaudio[abr>={abr}]",
+        url
+    ]
     subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-# <!-- puter musik dengan Lirik --->
+   # <!-- puter musik --->
 def play_audio(url, title="", abr="128", is_playlist=False):
-    print(f"{Fore.LIGHTCYAN_EX}▶️ Memutar audio langsung ({abr} kbps)...")
+    song_title = title
+    artist = ""
+    if not song_title or song_title == "Streaming":
+        cetak(f"[🔎] Mengambil info lagu...")
+        ydl_opts = {
+            "quiet": True,
+            "skip_download": True,
+            "extractor_args": {"youtube": {"player_client": ["android", "web"]}}
+        }
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                song_title = info.get("title", "")
+        except Exception:
+            pass
+    cetak(f"[▶️] Memutar audio langsung ({H2}{abr} kbps[/])...")
     t = threading.Thread(target=_run_mpv_quiet, args=(url, abr), daemon=True)
     t.start()
-    artist = ""
-    song_title = title
-    if "-" in title:
-        parts = title.split("-", 1)
+    if "-" in song_title:
+        parts = song_title.split("-", 1)
         artist = parts[0].strip()
         song_title = parts[1].strip()
     if song_title:
@@ -160,16 +187,16 @@ def pick_format(info, quality):
         return chosen['format_id']
     fallback = max(available)
     chosen = max([f for f in formats if int(f['height']) == fallback], key=lambda x: x.get('tbr') or 0)
-    print(f"{Fore.LIGHTYELLOW_EX}[!] {target}p tidak tersedia, fallback {fallback}p")
+    cetak(f"[{M2}![/]] {H2}{target}p [/]tidak tersedia, fallback {H2}{fallback}p")
     return chosen['format_id']
 
 def prompt_convert_to_mp3(video_path, abr="128"):
     try:
-        ans = input(f"\n{Fore.YELLOW}🎵 Convert video ke MP3? (y/n): {Style.RESET_ALL}").strip().lower()
+        ans = input(f"\n[?] Convert video ke MP3? (y/n): ").strip().lower()
         if ans != "y":
             return
         mp3_path = os.path.splitext(video_path)[0] + ".mp3"
-        print(f"{Fore.CYAN}🎧 Mengkonversi ke MP3 ({abr} kbps)...")
+        cetak(f"[•] Mengkonversi ke MP3 ({H2}{abr} kbps[/])...")
         subprocess.run([
             "ffmpeg", "-y",
             "-i", video_path,
@@ -177,13 +204,12 @@ def prompt_convert_to_mp3(video_path, abr="128"):
             "-ab", f"{abr}k",
             mp3_path
         ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        print(f"{Fore.GREEN}[✓] Berhasil: {mp3_path}")
+        cetak(f"[{H2}✓[/]] Berhasil: {mp3_path}")
     except Exception as e:
-        print(f"{Fore.RED}[x] Convert Gagal : {e}")
+        cetak(f"[{M2}x[/]] Gagal convert: {M2}{e}")
 
    # <!-- Download audio/video tunggal --->
 def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playlist_title=None, video_mode=False):
-    import yt_dlp
     audio_formats = ["mp3", "m4a", "opus", "aac", "wav"]
     base_output = "/sdcard/Download/iv-Download"
     if is_playlist and playlist_title:
@@ -222,7 +248,7 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
             else:
                 fmt = pick_format(info, quality)
                 if not fmt:
-                    print(f"{Fore.LIGHTRED_EX}[x] Tidak ada format video valid")
+                    cetak(f"[{M2}x[/]] Tidak ada format video valid")
                     return
                 opts = {
                     **common_opts,
@@ -230,20 +256,20 @@ def download(url, ext="mp3", quality="720", abr="128", is_playlist=False, playli
                     "merge_output_format": ext,
                 }
             with yt_dlp.YoutubeDL(opts) as y:
-              info = y.extract_info(url, download=True)
-        print(f"\n{Fore.GREEN}[✓] File disimpan ke: {output_dir}")
+                info = y.extract_info(url, download=True)
+        cetak(f"\n[{H2}✓[/]] File disimpan ke: {H2}{output_dir}")
         if video_mode and ext not in audio_formats:
-          try:
-            filename = y.prepare_filename(info)
-            prompt_convert_to_mp3(filename, abr)
-          except Exception:
-            pass
+            try:
+                filename = y.prepare_filename(info)
+                prompt_convert_to_mp3(filename, abr)
+            except Exception:
+                pass
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}[x] Error: {str(e)}")
+        cetak(f"[{M2}x[/]] Error: {M2}{str(e)}")
 
    # <!-- Fitur Searching Music --->
 def search_youtube(query, max_results=10, min_duration=0, max_duration=None, force_web=False):
-    print(f"{Fore.CYAN}🔍 Mencari: {query} ...")
+    cetak(f"[🔍] Mencari: {H2}{query}[/] ...")
     ydl_opts = {
         "quiet": True,
         "skip_download": True,
@@ -263,7 +289,7 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
                 info = ydl.extract_info(f"ytsearchddg{max_results}:{query}", download=False)
         entries = info.get("entries", [])
         if not entries:
-            print(f"{Fore.RED}[x] Tidak ditemukan hasil untuk '{query}'")
+            cetak(f"[{M2}x[/]] Tidak ditemukan hasil untuk '{query}'")
             return
         filtered = []
         for e in entries:
@@ -274,9 +300,9 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
                 continue
             filtered.append(e)
         if not filtered:
-            print(f"{Fore.RED}[x] Tidak ada hasil yang sesuai durasi filter")
+            cetak(f"[{M2}![/]] Tidak ada hasil yang sesuai durasi filter")
             return
-        print(f"{Fore.LIGHTCYAN_EX}🔎 Menemukan {len(filtered)} hasil:\n")
+        cetak(f"[{H2}✓{P2}] Menemukan {H2}{len(filtered)}[/] hasil:\n")
         for i, e in enumerate(filtered[:max_results], start=1):
             dur = int(e.get("duration") or 0)
             dur_min, dur_sec = divmod(dur, 60)
@@ -284,10 +310,9 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
             url = e.get("webpage_url") or e.get("url") or ""
             if url and not url.startswith("http"):
                 url = f"https://www.youtube.com/watch?v={url}"
-            #print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) — {Fore.LIGHTBLACK_EX}{url}")
-            print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) {Fore.LIGHTBLACK_EX}")
-        print(f"\n{Fore.YELLOW}Pilih URL yang ingin anda Putar/Download:")
-        choice = input(f"Masukkan nomor [1-{len(filtered)}]: ").strip()
+            cetak(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) [{A2}{url}[/]]")
+        cetak(f"\n[•] Pilih URL yang ingin anda Putar/Download:")
+        choice = input(f"[•] Masukkan nomor [1-{len(filtered)}]: ").strip()
         if not choice.isdigit():
             return
         idx = int(choice) - 1
@@ -297,17 +322,17 @@ def search_youtube(query, max_results=10, min_duration=0, max_duration=None, for
         url = picked.get("webpage_url") or picked.get("url")
         if url and not url.startswith("http"):
             url = f"https://www.youtube.com/watch?v={url}"
-        action = input(f"\nMau 1.Putar Langsung / 2.Download [1, 2]: ").strip()
+        action = input(f"\n[?] Mau Putar Langsung / Download [1/2]: ").strip()
         if action == "1":
-            print(f"{Fore.CYAN}▶️ Memutar: {picked.get('title')}")
+            cetak(f"[▶️] Memutar: [#00e83e]{picked.get('title')}")
             play_audio(url, title=picked.get("title", ""), abr="128", is_playlist=False)
         elif action == "2":
-            print(f"{Fore.GREEN}[↓] Mengunduh: {picked.get('title')}")
+            cetak(f"[[#19e800]↓[/]] Mengunduh: {H2}{picked.get('title')}")
             download(url, "mp3", "720", "128", is_playlist=False)
         else:
-            print(f"{Fore.RED}[x] Pilihan tidak valid.")
+            cetak(f"[[#e80000]![/]] Pilihan tidak valid.")
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}[x] Error: {str(e)}")
+        cetak(f"[[#e80000]![/]] Error: {str(e)}")
 
 # <!-- Playlist Handler --->
 def handle_playlist_interactive(url):
@@ -319,40 +344,40 @@ def handle_playlist_interactive(url):
         pl_title = info.get("title", "playlist")
         entries = info.get("entries") or []
         if not entries:
-            print(f"{Fore.RED}[x] Playlist kosong atau tidak dapat dibaca.")
+            cetak(f"[[#e80000]x[/]] Playlist kosong atau tidak dapat dibaca.")
             return
-        print(f"{Fore.LIGHTCYAN_EX}🎶 Playlist terdeteksi: {pl_title}")
-        print(f"Jumlah item: {len(entries)}\n")
-        print(f"{Fore.YELLOW}Mau yang mana nih?")
-        print(" [1] Putar langsung seluruh playlist (audio only)")
-        print(" [2] Download seluruh playlist (audio .mp3)")
-        print(" [3] Download seluruh playlist (video .mp4)")
-        print(" [4] Lihat daftar Playlist")
-        print(" [5] Keluar")
-        sel = input("Pilih [1-5]: ").strip()
+        cetak(f"{Fore.LIGHTCYAN_EX}[🎶] Playlist terdeteksi: {pl_title}")
+        cetak(f"[•] Jumlah item: {H2}{len(entries)}[/]\n")
+        cetak(f"[?] Mau yang mana nih?")
+        cetak(" [1] Putar langsung seluruh playlist (audio only)")
+        cetak(" [2] Download seluruh playlist (audio .mp3)")
+        cetak(" [3] Download seluruh playlist (video .mp4)")
+        cetak(" [4] Lihat daftar Playlist")
+        cetak(" [5] Keluar")
+        sel = input("[•] Pilih : ").strip()
         if sel == "1":
-            b = input("Gunakan bitrate audio [64/128/192] (default 128): ").strip()
+            b = input("[•] Gunakan bitrate audio [64/128/192] (default 128): ").strip()
             if b not in ["64","128","192"]:
                 b = "128"
-            print(f"{Fore.CYAN}▶️ Memutar seluruh playlist (audio {b} kbps)...")
+            cetak(f"[▶️] Memutar seluruh playlist (audio {b} kbps)...")
             play_audio(url, title=pl_title, abr=b, is_playlist=True)
             return
         if sel == "2":
-            b = input("Kualitas audio untuk download [64/128/192] (default 128): ").strip()
+            b = input("[•] Kualitas audio untuk download [64/128/192] (default 128): ").strip()
             if b not in ["64","128","192"]:
                 b = "128"
-            print(f"{Fore.GREEN}[↓] Mengunduh seluruh playlist sebagai .mp3 (bitrate {b}) ...")
+            cetak(f"[{H2}↓[/]] Mengunduh seluruh playlist sebagai .mp3 (bitrate {b}) ...")
             download(url, ext="mp3", quality="720", abr=b, is_playlist=True, playlist_title=pl_title)
             return
         if sel == "3":
-            q = input("Kualitas video untuk download [144/240/360/480/720/1080] (default 720): ").strip()
+            q = input("[•] Kualitas video untuk download [144/240/360/480/720/1080] (default 720): ").strip()
             if q not in ["144","240","360","480","720","1080"]:
                 q = "720"
-            print(f"{Fore.GREEN}[↓] Mengunduh seluruh playlist sebagai .mp4 (res {q}p) ...")
+            cetak(f"[{H2}↓[/]] Mengunduh seluruh playlist sebagai .mp4 (res {q}p) ...")
             download(url, ext="mp4", quality=q, abr="128", is_playlist=True, playlist_title=pl_title)
             return
         if sel == "4":
-            print(f"\n{Fore.LIGHTCYAN_EX}Daftar item:")
+            cetak(f"\n[•] Daftar item:")
             for i, e in enumerate(entries, start=1):
                 title = e.get("title", "Tidak ada judul")
                 dur = int(e.get("duration") or 0)
@@ -362,8 +387,8 @@ def handle_playlist_interactive(url):
                     display_vid = f"https://www.youtube.com/watch?v={vid}"
                 else:
                     display_vid = vid
-                print(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) — {display_vid}")
-            pick = input(f"\nPilih  [1-{len(entries)}]: ").strip()
+                cetak(f"[{i}] {title} ({dur_min}:{dur_sec:02d}) — {display_vid}")
+            pick = input(f"\n[•] Pilih  [1-{len(entries)}]: ").strip()
             if not pick.isdigit():
                 return
             idx = int(pick) - 1
@@ -373,31 +398,31 @@ def handle_playlist_interactive(url):
             vid = chosen.get("id") or chosen.get("url")
             if vid and not vid.startswith("http"):
                 vid = f"https://www.youtube.com/watch?v={vid}"
-            action = input("\nMau 1.Putar / 2.Download (mp3) / 3. Download (mp4) [1-3]: ").strip()
+            action = input("\n[?] Mau Putar / Download (mp3) / Download (mp4) [1-3]: ").strip()
             if action == "1":
-                print(f"{Fore.CYAN}▶️ Memutar: {chosen.get('title')}")
+                cetak(f"[▶️] Memutar: {H2}{chosen.get('title')}")
                 play_audio(vid, title=chosen.get("title", ""), abr="128", is_playlist=False)
             elif action == "2":
-                b = input("Kualitas audio [64/128/192] (default 128): ").strip()
+                b = input("[•] Kualitas audio [64/128/192] (default 128): ").strip()
                 if b not in ["64","128","192"]:
                     b = "128"
-                print(f"{Fore.GREEN}[↓] Mengunduh: {chosen.get('title')} (mp3, {b} kbps)")
+                cetak(f"[{H2}↓[/]] Mengunduh: {H2}{chosen.get('title')} (mp3, {b} kbps)")
                 download(vid, ext="mp3", quality="720", abr=b, is_playlist=False)
             elif action == "3":
-                q = input("Kualitas video [144/240/360/480/720/1080] (default 720): ").strip()
+                q = input("[•] Kualitas video [144/240/360/480/720/1080] (default 720): ").strip()
                 if q not in ["144","240","360","480","720","1080"]:
                     q = "720"
-                print(f"{Fore.GREEN}[↓] Mengunduh: {chosen.get('title')} (mp4, {q}p)")
+                cetak(f"[{H2}↓[/]] Mengunduh: {H2}{chosen.get('title')} (mp4, {q}p)")
                 download(vid, ext="mp4", quality=q, abr="128", is_playlist=False)
             else:
-                print(f"{Fore.RED}[x]Pilihan tidak valid.")
+                cetak(f"[{M2}x[/]]Pilihan tidak valid.")
             return
         if sel == "5":
-            print(f"{Fore.YELLOW}Keluar.")
+            cetak(f"[•] See you again...!")
             return
-        print(f"{Fore.RED}[x]Pilihan tidak valid.")
+        cetak(f"[{M2}x[!]]Pilihan tidak valid.")
     except Exception as e:
-        print(f"{Fore.LIGHTRED_EX}[x]Error: {str(e)}")
+        cetak(f"[{M2}x[/]]Error: {M2}{str(e)}")
 
    # <!-- Url Playlist Detector --->
 def is_playlist_url(url: str) -> bool:
@@ -415,11 +440,9 @@ if __name__ == "__main__":
     os.system("cls" if os.name == "nt" else "clear")
     banner()
     check_ffmpeg_mpv()
-    
     ext, quality, abr = "mp3", "720", "128"
     force_web = "--force-web" in args
     video_mode = "-v" in args
-    
     if "-f" in args or "--format" in args:
         try:
             idx = args.index("-f") if "-f" in args else args.index("--format")
@@ -438,20 +461,17 @@ if __name__ == "__main__":
             abr = args[idx + 1]
         except Exception:
             pass
-            
-    # <!-- fitur search --->
+    # <!-- search --->
     if "-sr" in args or "--search" in args:
         try:
             idx = args.index("-sr") if "-sr" in args else args.index("--search")
             query = args[idx + 1]
         except Exception:
-            print(f"{Fore.RED}[x]Gunakan: -sr \"query\"")
+            cetak(f"{Fore.RED}[x]Gunakan: -sr \"query\"")
             sys.exit(1)
-            
         max_results = 10
         min_duration = 0
         max_duration = None
-        
         if "--max-results" in args:
             try:
                 max_results = int(args[args.index("--max-results") + 1])
@@ -467,16 +487,14 @@ if __name__ == "__main__":
                 max_duration = int(args[args.index("--max-duration") + 1])
             except Exception:
                 pass
-                
         search_youtube(query, max_results=max_results, min_duration=min_duration, max_duration=max_duration, force_web=force_web)
         sys.exit(0)
-
-    # <!-- Pemutaran URL Tunggal / Playlist langsung --->
+    # <!-- Pemutaran URL Tunggal / Playlist --->
     target_url = args[-1]
     if is_playlist_url(target_url):
         handle_playlist_interactive(target_url)
     elif "-p" in args or "--play" in args:
-        play_audio(target_url, title="Streaming", abr=abr)
+        play_audio(target_url, abr=abr)
     else:
         download(target_url, ext=ext, quality=quality, abr=abr, video_mode=video_mode)
 
